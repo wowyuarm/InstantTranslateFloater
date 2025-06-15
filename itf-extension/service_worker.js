@@ -2,7 +2,7 @@
 // and provide an options page for the user to configure it.
 // For this version, we use a placeholder.
 const API_KEY = 'sk-842f3e5432b5406d98a37532788e4aea';
-const ENDPOINT = 'https://api.deepseek.com/chat/completions';
+const ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
 
 // Simple in-memory cache. A more robust solution could use chrome.storage.local.
 const cache = new Map(); // K: text, V: { timestamp, result }
@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
- * Fetches translation from the Google Translate API.
+ * Fetches translation from the DeepSeek API.
  * @param {string} q The text to translate.
  * @returns {Promise<string>} The translated text.
  */
