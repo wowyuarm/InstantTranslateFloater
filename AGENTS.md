@@ -6,7 +6,7 @@
 
 ## 1. 项目核心目标
 
-本项目的目标是创建一个浏览器扩展，允许用户通过 **悬停高亮** 和 **点击** 的方式，快速翻译网页上的单词或句子，并将结果显示在不打扰阅读流的侧边浮窗中。
+本项目的目标是创建一个浏览器扩展，允许用户在网页上选中文本后按下 **CapsLock** 键触发翻译，结果以侧边浮窗呈现，并有细线连接到原文位置。
 
 ## 2. 代码架构与文件导览
 
@@ -56,7 +56,7 @@
 
 1.  **用户设置**：用户点击插件图标 -> `popup.html` 显示 -> 用户在 `popup.js` 控制下修改设置 -> 设置被存入 `chrome.storage.sync`。
 2.  **功能启用**：`content_script.js` 监听到 `isFeatureEnabled` 变为 `true`，开始激活事件监听器。
-3.  **交互 & 触发**：用户按住 `Ctrl`/`Alt` 并移动鼠标 -> `mousemove` 事件触发 `handleHighlight` -> 用户点击高亮元素 -> `click` 事件触发 `handleTranslationTrigger`。
+3.  **交互 & 触发**：用户在页面上选中任意文本后，按下 `CapsLock` 键 -> `keydown` 事件触发 `handleCapsLockTrigger` -> 扩展创建翻译浮窗并连线。
 4.  **请求发送**：`handleTranslationTrigger` 创建一个加载中的浮窗，然后通过 `chrome.runtime.sendMessage` 将翻译任务发送给 `service_worker.js`。
 5.  **后台翻译**：`service_worker.js` 接收任务 -> 从存储中获取 API 密钥 -> 调用 `fetch` 请求 DeepSeek API -> 获得翻译结果。
 6.  **结果返回**：`service_worker.js` 通过 `chrome.tabs.sendMessage` 将结果发回给发起请求的页面的 `content_script.js`。
@@ -82,9 +82,9 @@
     3.  **修改高亮**：找到 `.itf-highlight` 选择器并修改其属性。
     4.  如果要修改浮窗的 **HTML 结构**，请到 `content_script.js` 的 `renderFloatingCard` 函数中进行修改。
 
--   **任务：更改交互快捷键 (例如，用 `Shift` 代替 `Alt`)**
+-   **任务：更改交互快捷键 (例如，用 `Shift` 代替 `CapsLock`)**
     1.  **定位文件**：`content_script.js`。
-    2.  **查找并替换**：在 `keydown`, `keyup` 和 `click` 的事件监听器中，查找所有对 `altPressed` 和 `e.altKey` 的检查，将其替换为 `shiftPressed` 和 `e.shiftKey`。确保逻辑一致性。
+    2.  **查找并替换**：在 `keydown` 监听器和相关逻辑中，将对 `e.key === 'CapsLock'` 的判断替换为新的按键即可。
 
 -   **任务：在 Popup 中添加新设置**
     1.  **修改 `popup.html`**：添加新的 UI 元素（如复选框、输入框）。

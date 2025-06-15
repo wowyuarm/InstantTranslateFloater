@@ -13,5 +13,8 @@ function layoutCards() {
   cards.forEach(card => {
     card.style.top = `${top}px`;
     top += card.offsetHeight + GAP;
+    if (typeof window.updateConnectorForCard === 'function') {
+      window.updateConnectorForCard(card.dataset.itfCard);
+    }
   });
 }

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "InstantTranslateFloater",
   "version": "0.1.0",
-  "description": "Ctrl+选词 / Alt+选句，一键浮窗翻译",
+  "description": "CapsLock 选中文本后浮窗翻译",
   "permissions": ["activeTab", "storage", "scripting"],
   "host_permissions": ["*://*/*"],
   "background": { "service_worker": "service_worker.js" },

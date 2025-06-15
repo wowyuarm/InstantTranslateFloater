@@ -1,9 +1,8 @@
 // --- Global State ---
 let isFeatureEnabled = false;
-let ctrlPressed = false;
-let altPressed = false;
-let lastHoveredElement = null; // The DOM element currently highlighted
+let lastHoveredElement = null; // Not used in CapsLock mode but kept for compatibility
 const HIGHLIGHT_CLASS = 'itf-highlight';
+const connectors = new Map(); // id -> { line, anchorRect }
 
 let cardOrder = 0;
 
@@ -28,47 +27,14 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 // --- Event Listeners ---
 
 document.addEventListener('keydown', (e) => {
-    if (!isFeatureEnabled) return;
-    
-    // Check if the key is one of our modifiers
-    const isModifier = e.key === 'Control' || e.key === 'Alt';
-    if (!isModifier) return;
-
-    // To prevent flicker when holding down the key
-    if ((e.ctrlKey && ctrlPressed) || (e.altKey && altPressed)) return;
-    
-    ctrlPressed = e.ctrlKey;
-    altPressed = e.altKey;
+    if (!isFeatureEnabled || e.key !== 'CapsLock') return;
+    e.preventDefault();
+    handleCapsLockTrigger();
 }, true);
 
-document.addEventListener('keyup', (e) => {
-    // If the feature is disabled, or if the released key isn't a modifier, do nothing
-    if (!isFeatureEnabled || (e.key !== 'Control' && e.key !== 'Alt')) return;
-    
-    ctrlPressed = false;
-    altPressed = false;
-    removeHighlight();
-}, true);
-
-// Use mousemove to detect where the cursor is and highlight text
-document.addEventListener('mousemove', (e) => {
-    if (!isFeatureEnabled || (!ctrlPressed && !altPressed)) {
-        return;
-    }
-    handleHighlight(e);
-}, true);
-
-// Listen for clicks on highlighted elements to trigger translation
-document.addEventListener('click', (e) => {
-    if (!isFeatureEnabled || (!ctrlPressed && !altPressed)) return;
-
-    const target = e.target;
-    if (target && target.classList.contains(HIGHLIGHT_CLASS)) {
-        e.preventDefault();
-        e.stopPropagation();
-        handleTranslationTrigger(target);
-    }
-}, true); // Use capture phase to catch the event early
+window.addEventListener('scroll', () => {
+    connectors.forEach((_, id) => updateConnectorPosition(id));
+});
 
 
 // --- Core Logic ---
@@ -110,25 +76,43 @@ function removeHighlight() {
     }
 }
 
+function handleCapsLockTrigger() {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return;
+
+    const text = sel.toString().trim();
+    if (!text) return;
+
+    const { fullSentence } = extendToSentence(sel);
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const anchorRect = {
+        left: rect.left + window.scrollX,
+        top: rect.top + window.scrollY,
+        width: rect.width,
+        height: rect.height
+    };
+
+    const id = `itf-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    renderFloatingCard({ id, src: text, state: 'loading', anchorRect });
+
+    chrome.runtime.sendMessage({
+        type: 'translate',
+        id,
+        text,
+        context: fullSentence
+    });
+
+    sel.removeAllRanges();
+}
+
 function handleTranslationTrigger(target) {
     const text = target.textContent.trim();
     if (!text) return;
-    
-    let payload;
-    // We get the whole sentence as context for both word and sentence translation
-    // This simplifies the logic compared to the previous Selection-based method
-    const context = target.parentElement.textContent.trim() || text;
 
-    if (ctrlPressed) { // Word translation
-        // A simple regex to check if it's a single word (or hyphenated)
-        if (!/^[a-zA-Z-]+$/.test(text)) {
-            console.warn("ITF: Ctrl+Click is for single words. Use Alt+Click for sentences.");
-            return;
-        }
-        payload = { text, context };
-    } else { // Sentence translation
-        payload = { text, context: text };
-    }
+    const context = target.parentElement.textContent.trim() || text;
+    const payload = { text, context };
     
     const id = `itf-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -155,7 +139,7 @@ chrome.runtime.onMessage.addListener((msg) => {
 
 // --- UI Management (Functions from previous implementation remain largely the same) ---
 
-function renderFloatingCard({ id, src, state }) {
+function renderFloatingCard({ id, src, state, anchorRect }) {
   const card = document.createElement('div');
   card.dataset.itfCard = id;
   card.dataset.order = cardOrder++;
@@ -170,10 +154,13 @@ function renderFloatingCard({ id, src, state }) {
   `;
 
   document.body.appendChild(card);
-  
+
   setTimeout(() => {
     card.dataset.itfState = 'done';
     layoutCards();
+    if (anchorRect) {
+      createConnector(id, anchorRect);
+    }
   }, 10);
 
   card.querySelector('.itf-close').addEventListener('click', () => {
@@ -205,12 +192,56 @@ function updateFloatingCard({ id, success, result, error }) {
   layoutCards();
 }
 
+function createConnector(id, anchorRect) {
+  const line = document.createElement('div');
+  line.className = 'itf-connector';
+  line.dataset.connectorFor = id;
+  document.body.appendChild(line);
+  connectors.set(id, { line, anchorRect });
+  updateConnectorPosition(id);
+}
+
+function updateConnectorPosition(id) {
+  const entry = connectors.get(id);
+  if (!entry) return;
+  const { line, anchorRect } = entry;
+  const card = document.querySelector(`[data-itf-card="${id}"]`);
+  if (!card) return;
+  const cardRect = card.getBoundingClientRect();
+  const startX = anchorRect.left - window.scrollX + anchorRect.width / 2;
+  const startY = anchorRect.top - window.scrollY + anchorRect.height / 2;
+  const endX = cardRect.left;
+  const endY = cardRect.top + cardRect.height / 2;
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  line.style.top = `${startY}px`;
+  line.style.left = `${startX}px`;
+  line.style.width = `${length}px`;
+  line.style.transformOrigin = '0 0';
+  line.style.transform = `rotate(${angle}deg)`;
+}
+
+function updateConnectorForCard(id) {
+  updateConnectorPosition(id);
+}
+
+// Expose for layout manager
+window.updateConnectorForCard = updateConnectorForCard;
+
 function removeCard(card) {
     card.dataset.itfState = 'closing';
     card.style.opacity = '0';
     card.style.transform = 'translateX(20px)';
     setTimeout(() => {
         card.remove();
+        const id = card.dataset.itfCard;
+        const conn = connectors.get(id);
+        if (conn) {
+            conn.line.remove();
+            connectors.delete(id);
+        }
         layoutCards();
     }, 300);
 }
