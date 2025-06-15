@@ -34,14 +34,9 @@ git clone https://github.com/YOUR_USERNAME/InstantTranslateFloater.git
 
 ### 步骤 3: 填入 API 密钥
 
-1.  在项目文件中，找到并打开 `itf-extension/service_worker.js`。
-2.  将您复制的密钥粘贴到 `API_KEY` 常量中，替换现有的值。
-
-    ```javascript
-    // itf-extension/service_worker.js
-
-    const API_KEY = 'sk-xxxxxxxxxxxxxxxxxxxxxxxx'; // 粘贴您的密钥到这里
-    ```
+1.  加载扩展后，点击浏览器工具栏中的插件图标。
+2.  在弹出的设置窗口中，将您复制的密钥填写到 **API Key** 输入框。
+3.  输入后即会自动保存，无需再次修改代码。
 
 ### 步骤 4: 在浏览器中加载扩展
 
