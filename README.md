@@ -1,11 +1,6 @@
 # 🎈 InstantTranslateFloater (ITF) - 即时翻译浮窗
 
-InstantTranslateFloater 是一款浏览器扩展程序，旨在提供一种快速、无缝的网页划词翻译体验。它通过悬浮窗口即时展示翻译结果，让您在阅读外语内容时无需离开当前页面，极大地提升了阅读和学习效率。
-
-![ITF 功能演示](https://raw.githubusercontent.com/wowyu/InstantTranslateFloater/main/screenshots/itf-demo.gif)
-*(这是一个演示动画占位符，建议您录制一个GIF并替换此链接)*
-
----
+InstantTranslateFloater 是一款浏览器扩展程序，旨在提供一种快速、无缝的网页划词翻译体验。
 
 ## ✨ 功能特性
 
