@@ -1,0 +1,78 @@
+[data-itf-card] {
+  position: fixed;
+  right: 16px;
+  max-width: 360px;
+  background: #ffffffee;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+  border-radius: 8px;
+  padding: 12px 16px 14px;
+  margin-top: 0;  /* layoutManager 控制垂直距离 */
+  z-index: 2147483647;
+  font-size: 14px;
+  line-height: 1.45;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  color: #202124;
+  overflow-wrap: break-word;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+[data-itf-card][data-itf-state="done"] {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+[data-itf-card] .itf-close {
+  position: absolute; 
+  top: 6px; 
+  right: 8px;
+  cursor: pointer; 
+  font-weight: bold;
+  color: #70757a;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+[data-itf-card] .itf-close:hover {
+    background-color: #0000001a;
+}
+
+[data-itf-card] .itf-source-text {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+[data-itf-card] .itf-result-text {
+    margin-top: 4px;
+}
+
+[data-itf-card] .itf-error-text {
+    color: #d93025;
+    cursor: pointer;
+}
+
+[data-itf-card] .itf-loading-spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    margin: 8px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.itf-highlight {
+    background-color: #D2E3FC;
+    cursor: pointer;
+    border-radius: 2px;
+}

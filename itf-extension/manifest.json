@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "InstantTranslateFloater",
+  "version": "0.1.0",
+  "description": "Ctrl+选词 / Alt+选句，一键浮窗翻译",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["*://*/*"],
+  "background": { "service_worker": "service_worker.js" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/128.svg"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "utils/queue.js",
+        "utils/sentence.js",
+        "content_script.js"
+      ],
+      "css": ["style.css"]
+    }
+  ],
+  "icons": { "128": "icons/128.svg" }
+}

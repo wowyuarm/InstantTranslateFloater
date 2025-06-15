@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <style>
+    .bg { fill: #4285F4; }
+    .text { fill: #FFFFFF; font-family: Arial, sans-serif; font-size: 80px; font-weight: bold; }
+  </style>
+  <defs>
+    <clipPath id="squircle">
+      <path d="M64,0 C100,0 128,28 128,64 C128,100 100,128 64,128 C28,128 0,100 0,64 C0,28 28,0 64,0 Z" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#squircle)">
+    <rect width="128" height="128" class="bg"/>
+    <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" class="text" dy=".05em">T</text>
+  </g>
+</svg> 
