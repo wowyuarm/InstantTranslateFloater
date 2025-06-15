@@ -76,3 +76,11 @@
     cursor: pointer;
     border-radius: 2px;
 }
+
+.itf-connector {
+    position: fixed;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 2147483646;
+    pointer-events: none;
+}
