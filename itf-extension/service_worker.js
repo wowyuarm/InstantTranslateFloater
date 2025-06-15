@@ -1,22 +1,5 @@
-// API key will be retrieved from chrome.storage.sync so users don't have to
-// modify the source code. A placeholder value is kept for backward compatibility
-// but will be overwritten once the key is saved via the popup.
-let API_KEY = 'sk-xxxxxxxxxxxxxxxxxxxxxxxx';
-const ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
-
-// Load API key from storage when the service worker starts
-chrome.storage.sync.get(['apiKey'], (result) => {
-  if (result.apiKey) {
-    API_KEY = result.apiKey;
-  }
-});
-
-// Update the key if it changes in storage
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.apiKey) {
-    API_KEY = changes.apiKey.newValue;
-  }
-});
+// API configuration for DeepSeek (OpenAI-compatible)
+const ENDPOINT = 'https://api.deepseek.com/chat/completions';
 
 // Simple in-memory cache. A more robust solution could use chrome.storage.local.
 const cache = new Map(); // K: text, V: { timestamp, result }
@@ -72,15 +55,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * @returns {Promise<string>} The translated text.
  */
 async function translateText(q) {
-  if (!API_KEY || API_KEY.includes('sk-xxxxxxxx')) {
-    throw new Error('API key is not set. Please configure it in the extension popup.');
+  // 1. Retrieve the API key from storage
+  const { apiKey } = await chrome.storage.sync.get('apiKey');
+
+  if (!apiKey) {
+    throw new Error('API key is not set. Please configure it in the popup settings.');
   }
 
   const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
+      'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
       model: 'deepseek-chat',
