@@ -32,18 +32,7 @@ git clone https://github.com/YOUR_USERNAME/InstantTranslateFloater.git
 2.  导航至 "API 密钥" 页面创建一个新的密钥。
 3.  复制您创建的密钥。
 
-### 步骤 3: 填入 API 密钥
-
-1.  在项目文件中，找到并打开 `itf-extension/service_worker.js`。
-2.  将您复制的密钥粘贴到 `API_KEY` 常量中，替换现有的值。
-
-    ```javascript
-    // itf-extension/service_worker.js
-
-    const API_KEY = 'sk-xxxxxxxxxxxxxxxxxxxxxxxx'; // 粘贴您的密钥到这里
-    ```
-
-### 步骤 4: 在浏览器中加载扩展
+### 步骤 3: 在浏览器中加载扩展
 
 **对于 Chrome / Edge 用户:**
 
@@ -53,6 +42,11 @@ git clone https://github.com/YOUR_USERNAME/InstantTranslateFloater.git
 4.  在弹出的文件选择窗口中，选择本项目下的 `itf-extension` 文件夹。
 
 加载成功后，您应该能在浏览器右上角看到插件的 "T" 字图标。
+
+### 步骤 4: 通过扩展设置存入 API 密钥
+
+1. 在 `chrome://extensions` 页面找到 InstantTranslateFloater，点击 **"扩展选项"**（或 **"扩展设置"**）。
+2. 在打开的设置页面输入您在步骤 2 中获得的 API 密钥并保存。
 
 ---
 

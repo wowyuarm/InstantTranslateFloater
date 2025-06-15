@@ -1,7 +1,10 @@
-// It is recommended to use chrome.storage.sync to store the API key
-// and provide an options page for the user to configure it.
-// For this version, we use a placeholder.
-const API_KEY = 'sk-842f3e5432b5406d98a37532788e4aea';
+// API key is stored in chrome.storage.sync and configured via options page.
+// Use an async helper to retrieve it when needed.
+async function getApiKey() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['API_KEY'], (result) => resolve(result.API_KEY));
+  });
+}
 const ENDPOINT = 'https://api.deepseek.com/chat/completions';
 
 // Simple in-memory cache. A more robust solution could use chrome.storage.local.
@@ -58,8 +61,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * @returns {Promise<string>} The translated text.
  */
 async function translateText(q) {
-  if (!API_KEY || API_KEY.includes('sk-xxxxxxxx')) {
-    throw new Error('API key is not set. Please configure it in service_worker.js.');
+  const API_KEY = await getApiKey();
+  if (!API_KEY) {
+    chrome.runtime.openOptionsPage();
+    throw new Error('API key is not set. Please configure it in the extension settings.');
   }
 
   const response = await fetch(ENDPOINT, {
