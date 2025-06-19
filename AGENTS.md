@@ -1,6 +1,6 @@
-# 🤖 AI 助手操作手册 (AGENTS.md)
+AGENTS.md For Codex
 
-欢迎！本文件旨在帮助您——AI 助手——理解并高效地管理 **InstantTranslateFloater** 项目。请在执行任何操作前仔细阅读此文档。
+本文件旨在帮助您——Codex from OpenAI——理解并高效地管理 **InstantTranslateFloater** 项目。请在执行任何操作前仔细阅读此文档。
 
 ---
 
